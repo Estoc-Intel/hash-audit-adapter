@@ -38,7 +38,9 @@ Manifest guidance:
 - sensitive-file confirmation: required.
 - Dockerfile build: requires explicit build-time network approval for `registry-1.docker.io`, `archive.ubuntu.com`, `security.ubuntu.com`, and `hashcat.net`.
 
-The image uses the official Hashcat 7.1.2 binary release and verifies SHA-256 `80db0316387794ce9d14ed376da75b8a7742972485b45db790f5f8260307ff98` before extraction. Hashcat is distributed under the MIT License by its upstream project: <https://github.com/hashcat/hashcat>.
+The image uses the pinned NVIDIA CUDA 12.8.1 development image so Hashcat has the CUDA Toolkit and NVRTC compiler required for an NVIDIA GPU. Before installing Ubuntu packages, it removes the inherited NVIDIA apt source so the approved build contacts only the documented domains. It then installs the official Hashcat 7.1.2 binary release and verifies SHA-256 `80db0316387794ce9d14ed376da75b8a7742972485b45db790f5f8260307ff98` before extraction. Hashcat is distributed under the MIT License by its upstream project: <https://github.com/hashcat/hashcat>.
+
+Failures emit only a fixed `ESTOC_SAFE_ERROR:<code>` diagnostic. Hash values, wordlist candidates, recovered plaintext, and raw Hashcat diagnostics are never written to standard error.
 
 ## Local tests
 
