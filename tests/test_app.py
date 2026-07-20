@@ -65,6 +65,8 @@ class AdapterTests(unittest.TestCase):
         self.assertIn("--potfile-disable", command)
         self.assertIn("--restore-disable", command)
         self.assertIn("--logfile-disable", command)
+        self.assertEqual(command[command.index("--outfile-format") + 1], "1,3")
+        self.assertEqual(command[command.index("--separator") + 1], ":")
         self.assertNotIn("--rules-file", command)
         self.assertEqual(
             [pathlib.PurePath(value).parts[-3:] for value in command[-2:]],
@@ -81,6 +83,12 @@ class AdapterTests(unittest.TestCase):
             "password_utf8": synthetic_plaintext.decode("ascii"),
             "password_hex": plaintext_hex,
         }])
+
+    def test_rejects_unexpected_hashcat_output_with_safe_code(self):
+        outfile = self.write("recovered.txt", "1753050421\n")
+        with self.assertRaises(app.AuditExecutionError) as error:
+            app.parse_results(outfile)
+        self.assertEqual(error.exception.code, "result_format_error")
 
     def test_classifies_gpu_failures_without_returning_diagnostics(self):
         diagnostic = b"Failed to initialize NVIDIA RTC library. secret-never-returned"
