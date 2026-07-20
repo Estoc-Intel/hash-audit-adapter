@@ -103,7 +103,8 @@ def build_command(mode: str, hashes: pathlib.Path, wordlist: pathlib.Path, outfi
         "--wordlist-autohex-disable",
         "--hwmon-disable",
         "--outfile", str(outfile),
-        "--outfile-format", "5",
+        "--outfile-format", "1,3",
+        "--separator", ":",
         str(hashes),
         str(wordlist),
     ]
@@ -113,12 +114,20 @@ def parse_results(outfile: pathlib.Path) -> list[dict[str, str | None]]:
     if not outfile.exists():
         return []
     results = []
-    for line_number, raw in enumerate(outfile.read_text(encoding="ascii").splitlines(), start=1):
+    try:
+        lines = outfile.read_text(encoding="ascii").splitlines()
+    except UnicodeError as error:
+        raise AuditExecutionError("result_format_error") from error
+    for raw in lines:
         try:
             hash_value, plain_hex = raw.rsplit(":", 1)
+            if not hash_value or not HEX_RE.fullmatch(hash_value):
+                raise ValueError("invalid hash field")
+            if len(plain_hex) % 2 or (plain_hex and not HEX_RE.fullmatch(plain_hex)):
+                raise ValueError("invalid hexadecimal plaintext field")
             plain_bytes = bytes.fromhex(plain_hex)
         except ValueError as error:
-            raise RuntimeError(f"Hashcat produced an invalid result record at line {line_number}") from error
+            raise AuditExecutionError("result_format_error") from error
         try:
             plain_utf8 = plain_bytes.decode("utf-8")
         except UnicodeDecodeError:

@@ -14,7 +14,7 @@ Use this software only with hashes, candidate dictionaries, systems, and account
 - Hash syntax and length are validated for the selected mode before execution.
 - Candidates are limited to 256 bytes and may not contain NUL bytes.
 - No shell, pseudo-terminal, masks, rules, combinators, arbitrary flags, sessions, restores, potfiles, tunnels, credentials, or runtime network access.
-- Hashcat output uses hex-encoded plaintext records. The adapter emits sensitive JSON only to standard output so the console can stage it privately and require **Save securely**.
+- Hashcat output is pinned to documented fields `1,3` (`hash[:salt]` plus `hex_plain`) with an explicit `:` separator. The adapter validates every record and emits sensitive JSON only to standard output so the console can stage it privately and require **Save securely**.
 
 The adapter never modifies either input file. Temporary recovery output exists only within the isolated task sandbox.
 
