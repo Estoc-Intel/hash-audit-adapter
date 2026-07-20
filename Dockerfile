@@ -1,10 +1,11 @@
-FROM nvidia/cuda:12.8.1-runtime-ubuntu24.04
+FROM nvidia/cuda:12.8.1-devel-ubuntu24.04
 
 ARG DEBIAN_FRONTEND=noninteractive
 ARG HASHCAT_VERSION=7.1.2
 ARG HASHCAT_SHA256=80db0316387794ce9d14ed376da75b8a7742972485b45db790f5f8260307ff98
 
-RUN apt-get update \
+RUN rm -f /etc/apt/sources.list.d/cuda*.list /etc/apt/sources.list.d/cuda*.sources \
+ && apt-get update \
  && apt-get install -y --no-install-recommends ca-certificates curl p7zip-full python3 \
  && rm -rf /var/lib/apt/lists/*
 
